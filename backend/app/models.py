@@ -1,5 +1,5 @@
 import uuid
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime
 
 from pydantic import EmailStr
 from sqlalchemy import DateTime
@@ -131,3 +131,40 @@ class TokenPayload(SQLModel):
 class NewPassword(SQLModel):
     token: str
     new_password: str = Field(min_length=8, max_length=128)
+
+
+
+
+    # Profile model
+class Profile(SQLModel, table=True):
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    user_id: uuid.UUID = Field(foreign_key="user.id", unique=True, index=True)
+    date_of_birth: date
+    gender: str
+    height: float
+    weight: float
+    activity_level: str
+
+class ProfileCreate(SQLModel):
+    date_of_birth: date
+    gender: str
+    height: float
+    weight: float
+    activity_level: str
+
+
+class ProfilePublic(SQLModel):
+    id: uuid.UUID
+    user_id: uuid.UUID
+    date_of_birth: date
+    gender: str
+    height: float
+    weight: float
+    activity_level: str
+
+class ProfileUpdate(SQLModel):
+    date_of_birth: date | None = None
+    gender: str | None = None
+    height: float | None = None
+    weight: float | None = None
+    activity_level: str | None = None    
