@@ -16,6 +16,9 @@ jobs:
 
     env:
       POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+      FIRST_SUPERUSER: ${{ secrets.FIRST_SUPERUSER }}
+      FIRST_SUPERUSER_PASSWORD: ${{ secrets.FIRST_SUPERUSER_PASSWORD }}
+      SECRET_KEY: ${{ secrets.SECRET_KEY }}
 
     timeout-minutes: 5
 
@@ -59,3 +62,4 @@ jobs:
       - name: Coverage report
         run: uv run coverage report --fail-under=90
         working-directory: backend
+
