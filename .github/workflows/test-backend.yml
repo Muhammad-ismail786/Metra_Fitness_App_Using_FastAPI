@@ -20,6 +20,7 @@ jobs:
       FIRST_SUPERUSER_PASSWORD: ${{ secrets.FIRST_SUPERUSER_PASSWORD }}
       SECRET_KEY: ${{ secrets.SECRET_KEY }}
       PROJECT_NAME: "Full Stack FastAPI Project"
+      DATABASE_URL: postgresql://postgres:${{ secrets.POSTGRES_PASSWORD }}@localhost:5433/app
 
     timeout-minutes: 5
 
