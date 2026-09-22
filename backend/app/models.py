@@ -168,3 +168,34 @@ class ProfileUpdate(SQLModel):
     height: float | None = None
     weight: float | None = None
     activity_level: str | None = None    
+
+#goal actaul database table model
+class Goal(SQLModel, table=True):
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    user_id: uuid.UUID = Field(
+        foreign_key="user.id",
+        index=True,
+    )
+    goal_type: str
+    target_value: float
+    current_value: float
+    target_date: date
+    description: str | None = None
+
+# post request model for creating a new goal
+class GoalCreate(SQLModel):
+    goal_type: str
+    target_value: float
+    current_value: float
+    target_date: date
+    description: str | None = None
+
+# api response model for returning goal data
+class GoalPublic(SQLModel):
+    id: uuid.UUID
+    user_id: uuid.UUID
+    goal_type: str
+    target_value: float
+    current_value: float
+    target_date: date
+    description: str | None = None
