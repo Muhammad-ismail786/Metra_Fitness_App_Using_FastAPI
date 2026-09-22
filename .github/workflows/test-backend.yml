@@ -21,6 +21,8 @@ jobs:
       SECRET_KEY: ${{ secrets.SECRET_KEY }}
       PROJECT_NAME: "Full Stack FastAPI Project"
       DATABASE_URL: postgresql://postgres:${{ secrets.POSTGRES_PASSWORD }}@localhost:5433/app
+      SMTP_HOST: "mailpit"
+      EMAILS_FROM_EMAIL: "info@example.com"
 
     timeout-minutes: 5
 
