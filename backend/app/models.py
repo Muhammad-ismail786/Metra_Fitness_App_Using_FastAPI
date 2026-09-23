@@ -1,8 +1,7 @@
 import uuid
 from datetime import UTC, date, datetime
-
 from pydantic import EmailStr
-from sqlalchemy import DateTime
+from sqlalchemy import DateTime,  JSON
 from sqlmodel import Field, Relationship, SQLModel
 
 
@@ -199,3 +198,37 @@ class GoalPublic(SQLModel):
     current_value: float
     target_date: date
     description: str | None = None
+
+
+# User Preferences database model
+class UserPreference(SQLModel, table=True):
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+
+    user_id: uuid.UUID = Field(
+        foreign_key="user.id",
+        unique=True,
+        index=True,
+    )
+
+    preferred_workout_duration: int
+    workouts_per_week: int
+    available_equipment: list[str] = Field(sa_type=JSON)
+    workout_location: str
+
+
+# Request model for creating user preferences
+class UserPreferenceCreate(SQLModel):
+    preferred_workout_duration: int
+    workouts_per_week: int
+    available_equipment: list[str]
+    workout_location: str
+
+
+# Response model for returning user preferences
+class UserPreferencePublic(SQLModel):
+    id: uuid.UUID
+    user_id: uuid.UUID
+    preferred_workout_duration: int
+    workouts_per_week: int
+    available_equipment: list[str]
+    workout_location: str
