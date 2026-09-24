@@ -1,6 +1,5 @@
 import uuid
 from datetime import UTC, date, datetime
-
 from pydantic import EmailStr
 from sqlalchemy import DateTime,  JSON
 from sqlmodel import Field, Relationship, SQLModel
@@ -281,3 +280,50 @@ class WorkoutPlanPublic(SQLModel):
     exercises: list[dict]
     status: str
     created_at: datetime | None = None
+
+# Exercise database model
+class Exercise(SQLModel, table=True):
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+
+    user_id: uuid.UUID = Field(
+        foreign_key="user.id",
+        index=True,
+        nullable=False,
+    )
+
+    exercise_name: str
+    description: str
+    muscle_groups: str
+    instructions: str
+    image_url: str | None = None
+
+    created_at: datetime | None = Field(
+        default_factory=get_datetime_utc,
+    )
+
+
+# Request model for creating a new exercise
+class ExerciseCreate(SQLModel):
+    exercise_name: str
+    description: str
+    muscle_groups: str
+    instructions: str
+    image_url: str | None = None
+
+
+# Response model for returning exercise data
+class ExercisePublic(SQLModel):
+    id: uuid.UUID
+    user_id: uuid.UUID
+    exercise_name: str
+    description: str
+    muscle_groups: str
+    instructions: str
+    image_url: str | None = None
+    created_at: datetime | None = None
+
+class ExerciseUpdate(SQLModel):
+    exercise_name: str | None = None
+    description: str | None = None
+    muscle_groups: str | None = None
+    instructions: str | None = None
