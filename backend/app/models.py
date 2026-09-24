@@ -1,5 +1,6 @@
 import uuid
 from datetime import UTC, date, datetime
+
 from pydantic import EmailStr
 from sqlalchemy import DateTime,  JSON
 from sqlmodel import Field, Relationship, SQLModel
@@ -232,3 +233,51 @@ class UserPreferencePublic(SQLModel):
     workouts_per_week: int
     available_equipment: list[str]
     workout_location: str
+
+
+# Workout Plan database model
+# Workout Plan database model
+class WorkoutPlan(SQLModel, table=True):
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+
+    user_id: uuid.UUID = Field(
+        foreign_key="user.id",
+        index=True,
+        nullable=False,
+    )
+
+    plan_name: str
+    duration: int
+    weekly_schedule: dict = Field(sa_type=JSON)
+    exercises: list[dict] = Field(sa_type=JSON)
+    status: str = "active"
+
+    created_at: datetime | None = Field(
+        default_factory=get_datetime_utc,
+    )
+
+
+class WorkoutPlanCreate(SQLModel):
+    plan_name: str
+    duration: int
+    weekly_schedule: dict
+    exercises: list[dict]
+    status: str = "active"    
+
+class WorkoutPlanUpdate(SQLModel):
+    plan_name: str | None = None
+    duration: int | None = None
+    weekly_schedule: dict | None = None
+    exercises: list[dict] | None = None
+    status: str | None = None
+
+# Response model for returning workout plan data
+class WorkoutPlanPublic(SQLModel):
+    id: uuid.UUID
+    user_id: uuid.UUID
+    plan_name: str
+    duration: int
+    weekly_schedule: dict
+    exercises: list[dict]
+    status: str
+    created_at: datetime | None = None
