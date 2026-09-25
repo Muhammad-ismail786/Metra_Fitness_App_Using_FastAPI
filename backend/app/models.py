@@ -327,3 +327,68 @@ class ExerciseUpdate(SQLModel):
     description: str | None = None
     muscle_groups: str | None = None
     instructions: str | None = None
+
+# Food Log database model
+class FoodLog(SQLModel, table=True):
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+
+    user_id: uuid.UUID = Field(
+        foreign_key="user.id",
+        index=True,
+        nullable=False,
+    )
+
+    food_name: str
+    log_date: date
+
+    quantity: float
+
+    total_calories: float
+    total_protein_g: float
+    total_carbs_g: float
+    total_fat_g: float
+
+    entry_method: str
+
+    ai_detected_items: list[str] = Field(sa_type=JSON)
+
+    image_url: str | None = None
+
+    created_at: datetime | None = Field(
+        default_factory=get_datetime_utc,
+    )
+
+
+class Recipe(SQLModel, table=True):
+    id: uuid.UUID = Field(
+        default_factory=uuid.uuid4,
+        primary_key=True,
+    )
+
+    user_id: uuid.UUID = Field(
+        foreign_key="user.id",
+        index=True,
+        nullable=False,
+    )
+
+    recipe_name: str
+
+    image_url: str | None = None
+
+    ingredients: list[str] = Field(
+        sa_type=JSON
+    )
+
+    instructions: str
+
+    total_calories: float | None = None
+
+    total_protein_g: float | None = None
+
+    total_carbs_g: float | None = None
+
+    total_fat_g: float | None = None
+
+    created_at: datetime | None = Field(
+        default_factory=get_datetime_utc,
+    )

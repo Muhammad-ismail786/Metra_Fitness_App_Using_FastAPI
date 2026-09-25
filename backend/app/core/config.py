@@ -29,6 +29,7 @@ class Settings(BaseSettings):
     PROJECT_NAME: str
     SENTRY_DSN: HttpUrl | None = None
     DATABASE_URL: PostgresDsn
+    GEMINI_API_KEY: str
 
     @field_validator("DATABASE_URL", mode="before")
     @classmethod

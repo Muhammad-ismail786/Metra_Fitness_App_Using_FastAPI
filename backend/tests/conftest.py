@@ -1,4 +1,3 @@
-
 from collections.abc import Generator
 
 import pytest
@@ -8,7 +7,16 @@ from sqlmodel import Session, delete
 from app.core.config import settings
 from app.core.db import engine, init_db
 from app.main import app
-from app.models import Goal, Item, Profile, User, WorkoutPlan, Exercise
+from app.models import (
+    Exercise,
+    FoodLog,
+    Goal,
+    Item,
+    Profile,
+    Recipe,
+    User,
+    WorkoutPlan,
+)
 from tests.utils.user import authentication_token_from_email
 from tests.utils.utils import get_superuser_token_headers
 
@@ -19,21 +27,17 @@ def db() -> Generator[Session]:
         init_db(session)
         yield session
 
-        statement = delete(Item)
-        session.execute(statement)
+        # Delete child records first
+        session.execute(delete(Item))
+        session.execute(delete(Profile))
+        session.execute(delete(Goal))
+        session.execute(delete(WorkoutPlan))
+        session.execute(delete(Exercise))
+        session.execute(delete(FoodLog))
+        session.execute(delete(Recipe))
 
-        statement = delete(Profile)
-        session.execute(statement)
-
-        statement = delete(Goal)
-        session.execute(statement)
-        statement = delete(WorkoutPlan)
-        session.execute(statement)
-        statement = delete(Exercise)
-        session.execute(statement)  
-
-        statement = delete(User)
-        session.execute(statement)
+        # Delete users after all related records
+        session.execute(delete(User))
 
         session.commit()
 
@@ -45,13 +49,16 @@ def client() -> Generator[TestClient]:
 
 
 @pytest.fixture(scope="module")
-def superuser_token_headers(client: TestClient) -> dict[str, str]:
+def superuser_token_headers(
+    client: TestClient,
+) -> dict[str, str]:
     return get_superuser_token_headers(client)
 
 
 @pytest.fixture(scope="module")
 def normal_user_token_headers(
-    client: TestClient, db: Session
+    client: TestClient,
+    db: Session,
 ) -> dict[str, str]:
     return authentication_token_from_email(
         client=client,
