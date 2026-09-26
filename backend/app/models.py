@@ -392,3 +392,12 @@ class Recipe(SQLModel, table=True):
     created_at: datetime | None = Field(
         default_factory=get_datetime_utc,
     )
+
+class DailyNutritionSummary(SQLModel):
+    user_id: uuid.UUID
+    date: date
+    total_calories: float
+    total_protein_g: float
+    total_carbs_g: float
+    total_fat_g: float
+    meals_logged: int
