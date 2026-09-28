@@ -1,3 +1,4 @@
+
 import uuid
 from pathlib import Path
 
@@ -6,14 +7,16 @@ from sqlmodel import select
 
 from app.api.deps import CurrentUser, SessionDep
 from app.api.routes.recipe_detection import analyze_recipe
+from app.core.supabase import supabase
 from app.models import Recipe
 
 
 router = APIRouter(tags=["recipe"])
 
 
-UPLOAD_DIR = Path("uploads/recipes")
-UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+# Local file upload is no longer used on Vercel
+# UPLOAD_DIR = Path("uploads/recipes")
+# UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 
 
 @router.post("/users/recipe/upload")
@@ -32,14 +35,40 @@ def upload_recipe(
             detail="File name is required",
         )
 
+    # OLD LOCAL FILE UPLOAD
+    # file_extension = Path(file.filename).suffix
+    # new_file_name = f"{uuid.uuid4()}{file_extension}"
+    # file_path = UPLOAD_DIR / new_file_name
+
+    # with file_path.open("wb") as buffer:
+    #     buffer.write(file.file.read())
+
+    # Read image into memory
+    file_bytes = file.file.read()
+
+    if not file_bytes:
+        raise HTTPException(
+            status_code=400,
+            detail="Uploaded file is empty",
+        )
+
     file_extension = Path(file.filename).suffix
 
-    new_file_name = f"{uuid.uuid4()}{file_extension}"
+    new_file_name = f"recipes/{uuid.uuid4()}{file_extension}"
 
-    file_path = UPLOAD_DIR / new_file_name
+    # Upload image to Supabase Storage
+    supabase.storage.from_("metra-images").upload(
+        new_file_name,
+        file_bytes,
+        file_options={
+            "content-type": file.content_type or "application/octet-stream",
+        },
+    )
 
-    with file_path.open("wb") as buffer:
-        buffer.write(file.file.read())
+    # Get public image URL
+    image_url = supabase.storage.from_("metra-images").get_public_url(
+        new_file_name
+    )
 
     ingredients_list = [
         item.strip()
@@ -52,7 +81,7 @@ def upload_recipe(
     recipe = Recipe(
         user_id=current_user.id,
         recipe_name=recipe_name,
-        image_url=str(file_path).replace("\\", "/"),
+        image_url=image_url,
         ingredients=ingredients_list,
         instructions=instructions,
         total_calories=nutrition["calories"],
@@ -81,3 +110,4 @@ def get_recipes(
     ).all()
 
     return list(recipes)
+
