@@ -1,6 +1,5 @@
 
 import json
-import mimetypes
 
 from google import genai
 
@@ -10,14 +9,26 @@ from app.core.config import settings
 client = genai.Client(api_key=settings.GEMINI_API_KEY)
 
 
-def analyze_food_image(image_path: str) -> dict:
-    mime_type, _ = mimetypes.guess_type(image_path)
+def analyze_food_image(
+    image_bytes: bytes,
+    mime_type: str,
+) -> dict:
 
-    if not mime_type:
-        mime_type = "image/jpeg"
+    # ---------------------------------
+    # OLD LOCAL FILE CODE
+    # ---------------------------------
 
-    with open(image_path, "rb") as image_file:
-        image_bytes = image_file.read()
+    # mime_type, _ = mimetypes.guess_type(image_path)
+
+    # if not mime_type:
+    #     mime_type = "image/jpeg"
+
+    # with open(image_path, "rb") as image_file:
+    #     image_bytes = image_file.read()
+
+    # ---------------------------------
+    # GEMINI FOOD IMAGE ANALYSIS
+    # ---------------------------------
 
     try:
         response = client.models.generate_content(

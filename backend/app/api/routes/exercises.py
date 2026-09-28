@@ -1,3 +1,4 @@
+
 import uuid
 from pathlib import Path
 
@@ -5,13 +6,15 @@ from fastapi import APIRouter, File, Form, HTTPException, UploadFile
 from sqlmodel import select
 
 from app.api.deps import CurrentUser, SessionDep
+from app.core.supabase import supabase
 from app.models import Exercise, ExercisePublic, ExerciseUpdate
 
 router = APIRouter(tags=["exercises"])
 
 
-UPLOAD_DIR = Path("uploads/exercises")
-UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+# Local file upload is no longer used on Vercel
+# UPLOAD_DIR = Path("uploads/exercises")
+# UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 
 
 @router.post(
@@ -34,14 +37,41 @@ def create_exercise(
             detail="File name is required",
         )
 
+    # ---------------------------------
+    # OLD LOCAL FILE UPLOAD
+    # ---------------------------------
+
+    # file_extension = Path(file.filename).suffix
+    # new_file_name = f"{uuid.uuid4()}{file_extension}"
+    # file_path = UPLOAD_DIR / new_file_name
+
+    # with file_path.open("wb") as buffer:
+    #     buffer.write(file.file.read())
+
+    # ---------------------------------
+    # NEW SUPABASE STORAGE UPLOAD
+    # ---------------------------------
+
     file_extension = Path(file.filename).suffix
+    new_file_name = f"exercises/{uuid.uuid4()}{file_extension}"
 
-    new_file_name = f"{uuid.uuid4()}{file_extension}"
+    file_bytes = file.file.read()
 
-    file_path = UPLOAD_DIR / new_file_name
+    supabase.storage.from_("metra-images").upload(
+        new_file_name,
+        file_bytes,
+        file_options={
+            "content-type": file.content_type or "application/octet-stream",
+        },
+    )
 
-    with file_path.open("wb") as buffer:
-        buffer.write(file.file.read())
+    image_url = supabase.storage.from_("metra-images").get_public_url(
+        new_file_name
+    )
+
+    # ---------------------------------
+    # SAVE EXERCISE IN DATABASE
+    # ---------------------------------
 
     exercise = Exercise(
         user_id=current_user.id,
@@ -49,7 +79,7 @@ def create_exercise(
         description=description,
         muscle_groups=muscle_groups,
         instructions=instructions,
-        image_url=str(file_path).replace("\\", "/"),
+        image_url=image_url,
     )
 
     session.add(exercise)
@@ -67,11 +97,13 @@ def get_all_exercises(
     session: SessionDep,
     current_user: CurrentUser,
 ) -> list[Exercise]:
+
     exercises = session.exec(
         select(Exercise)
     ).all()
 
     return list(exercises)
+
 
 @router.patch(
     "/users/exercises/{exercise_id}",
@@ -83,6 +115,7 @@ def update_exercise(
     session: SessionDep,
     current_user: CurrentUser,
 ) -> Exercise:
+
     exercise = session.get(Exercise, exercise_id)
 
     if not exercise:
@@ -108,6 +141,7 @@ def update_exercise(
 
     return exercise
 
+
 @router.delete(
     "/users/exercises/{exercise_id}",
 )
@@ -116,6 +150,7 @@ def delete_exercise(
     session: SessionDep,
     current_user: CurrentUser,
 ) -> dict:
+
     exercise = session.get(Exercise, exercise_id)
 
     if not exercise:
