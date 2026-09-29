@@ -10,7 +10,7 @@ from app.api.routes import (
     exercises,
     food_logs,
     recipe,
-    daily_nutrition_summary,
+    daily_nutrition_summary, physique_photos
 )
 
 api_router = APIRouter()
@@ -23,6 +23,7 @@ api_router.include_router(exercises.router)
 api_router.include_router(food_logs.router)
 api_router.include_router(daily_nutrition_summary.router)
 api_router.include_router(recipe.router)
+api_router.include_router(physique_photos.router)
 api_router.include_router(users.router)
 api_router.include_router(utils.router)
 api_router.include_router(items.router)

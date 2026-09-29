@@ -401,3 +401,27 @@ class DailyNutritionSummary(SQLModel):
     total_carbs_g: float
     total_fat_g: float
     meals_logged: int
+
+# Physique Photos database model
+class PhysiquePhoto(SQLModel, table=True):
+
+    id: uuid.UUID = Field(
+        default_factory=uuid.uuid4,
+        primary_key=True,
+    )
+
+    user_id: uuid.UUID = Field(
+        foreign_key="user.id",
+        index=True,
+        nullable=False,
+    )
+
+    photo_type: str
+
+    photo_url: str
+
+    log_date: date
+
+    created_at: datetime | None = Field(
+        default_factory=get_datetime_utc,
+    )

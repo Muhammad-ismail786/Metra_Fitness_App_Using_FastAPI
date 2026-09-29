@@ -16,6 +16,7 @@ from app.models import (
     Recipe,
     User,
     WorkoutPlan,
+    PhysiquePhoto,
 )
 from tests.utils.user import authentication_token_from_email
 from tests.utils.utils import get_superuser_token_headers
@@ -35,7 +36,7 @@ def db() -> Generator[Session]:
         session.execute(delete(Exercise))
         session.execute(delete(FoodLog))
         session.execute(delete(Recipe))
-
+        session.execute(delete(PhysiquePhoto))
         # Delete users after all related records
         session.execute(delete(User))
 
