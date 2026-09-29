@@ -33,6 +33,26 @@ def test_create_physique_photo(
         )
     }
 
+    # ============================================================
+    # OLD LOCAL STORAGE TEST CODE
+    # Kept for reference - DO NOT REMOVE
+    # ============================================================
+
+    # Local storage mein file save hoti thi.
+    #
+    # file_extension = Path(file.filename or "").suffix
+    # new_file_name = f"{uuid.uuid4()}{file_extension}"
+    # file_path = UPLOAD_DIR / new_file_name
+    #
+    # with file_path.open("wb") as buffer:
+    #     buffer.write(file.file.read())
+    #
+    # photo_url = str(file_path)
+
+    # ============================================================
+    # SUPABASE STORAGE
+    # ============================================================
+
     # Physique photo create/upload karte hain
     response = client.post(
         f"{settings.API_V1_STR}/users/physique/upload",
@@ -58,6 +78,13 @@ def test_create_physique_photo(
     assert "photo_url" in content
     assert content["photo_url"]
 
+    # Supabase Storage URL check
+    assert (
+        "supabase.co/storage/v1/object/public/"
+        "metra-images/physique_photos/"
+        in content["photo_url"]
+    )
+
 
 def test_get_physique_photos(
     client: TestClient,
@@ -77,6 +104,24 @@ def test_get_physique_photos(
             "image/jpeg",
         )
     }
+
+    # ============================================================
+    # OLD LOCAL STORAGE
+    # Kept for reference - DO NOT REMOVE
+    # ============================================================
+
+    # Pehle local filesystem mein image save hoti thi.
+    #
+    # file_extension = Path(file.filename or "").suffix
+    # new_file_name = f"{uuid.uuid4()}{file_extension}"
+    # file_path = UPLOAD_DIR / new_file_name
+    #
+    # with file_path.open("wb") as buffer:
+    #     buffer.write(file.file.read())
+
+    # ============================================================
+    # SUPABASE STORAGE
+    # ============================================================
 
     # Pehle POST API call
     create_response = client.post(
@@ -126,3 +171,10 @@ def test_get_physique_photos(
     # Photo URL verify karte hain
     assert "photo_url" in physique_photo
     assert physique_photo["photo_url"]
+
+    # Supabase Storage URL verify karte hain
+    assert (
+        "supabase.co/storage/v1/object/public/"
+        "metra-images/physique_photos/"
+        in physique_photo["photo_url"]
+    )
