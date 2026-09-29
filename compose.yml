@@ -65,6 +65,8 @@ services:
       PROJECT_NAME: ${PROJECT_NAME:?Variable not set}
       SECRET_KEY: ${SECRET_KEY:?Variable not set}
       GEMINI_API_KEY: ${GEMINI_API_KEY:?Variable not set}
+      SUPABASE_URL: ${SUPABASE_URL:?Variable not set}
+      SUPABASE_SERVICE_ROLE_KEY: ${SUPABASE_SERVICE_ROLE_KEY:?Variable not set}
       FIRST_SUPERUSER: ${FIRST_SUPERUSER:?Variable not set}
       FIRST_SUPERUSER_PASSWORD: ${FIRST_SUPERUSER_PASSWORD:?Variable not set}
       SMTP_HOST: ${SMTP_HOST}
